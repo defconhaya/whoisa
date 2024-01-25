@@ -32,7 +32,7 @@ cargo build --release
 Run the tool with a list of domains to perform parallel Whois queries:
 
 ```bash
-./target/release/whoisa example.com google.com github.com
+./target/release/whoisa ip_list.txt
 ```
 
 For more options and configuration settings, refer to the help command:
