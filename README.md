@@ -40,6 +40,9 @@ For more options and configuration settings, refer to the help command:
 ```bash
 ./target/release/whoisa --help
 ```
+## TODO
+- Add progress
+- Dynamic capture fields
 
 ## Contribution Guidelines
 
