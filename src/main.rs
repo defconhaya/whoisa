@@ -1,12 +1,12 @@
 use clap::Parser;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-// use serde_json::json;
+use serde_json::{json, Value};
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
-// use tokio::time::{sleep, Duration};
+use std::collections::BTreeMap;
 use whois_rust::{WhoIs, WhoIsLookupOptions};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -22,14 +22,17 @@ struct Args {
     #[arg(short, long)]
     file: String,
     /// Path to json servers file
-    #[arg(short, long)]
-    json: String,
+    #[arg(short, long, default_value="whois.json")]
+    output_json: String,
     ///Number of parallel whois workers
     #[arg(short, long, default_value_t = 4)]
     workers: i32,
-    ///json fields to extract eg org-name|organization,country
-    #[arg(short, long, default_value = "org-name|organization,country")]
+    ///json fields to extract eg name:org-name|organization,country
+    #[arg(short, long, default_value = "name:org-name|organization,country")]
     capture: String,
+    ///pretty print output json
+    #[arg(short, long)]
+    pretty: bool,
 }
 
 fn parse_whois_to_json(whois: &str) -> WhoisInfo {
@@ -51,7 +54,6 @@ fn parse_whois_to_json(whois: &str) -> WhoisInfo {
 }
 
 async fn ip(semaphore: Arc<Semaphore>, ip: String) -> WhoisInfo {
-    println!("{} is waiting in line", ip);
     let json = whoiser(semaphore, ip).await;
     json
 }
@@ -60,16 +62,36 @@ async fn whoiser(semaphore: Arc<Semaphore>, ip: String) -> WhoisInfo {
     let permit = semaphore.acquire().await.unwrap();
     let whois = WhoIs::from_path("servers.json").unwrap();
     let result: String = whois
-        .lookup(WhoIsLookupOptions::from_string(ip).unwrap())
+        .lookup(WhoIsLookupOptions::from_string(ip.clone()).unwrap())
         .unwrap();
-    let json_result = parse_whois_to_json(&result);
+    let mut json_result = parse_whois_to_json(&result);
+    json_result
+        .other_fields
+        .insert("ip".to_string(), ip.clone());
     drop(permit);
     json_result
 }
 
+fn get_value<'a>(map: &'a BTreeMap<String, String>, keys_to_try: Vec<&'a str>) -> &'a str {
+    for key in keys_to_try {
+        if let Some(value) = map.get(key) {
+            return value;
+        }
+    }
+    // If none of the keys are present, return a default value
+    "unk"
+}
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
+    let mut parts: Vec<Vec<&str>> = Vec::<Vec<&str>>::new();
+    let binding = args.capture.to_lowercase();
+    let captures: Vec<&str> = binding.split(',').collect();
+    for alt in &captures {
+        let alt_vec: Vec<&str> = alt.split('|').collect();
+        parts.push(alt_vec);
+    }
+
     match File::open(args.file) {
         Ok(file_handle) => {
             let reader = io::BufReader::new(file_handle);
@@ -91,8 +113,24 @@ async fn main() {
             for handle in people_handlers {
                 results.push(handle.await.unwrap());
             }
+
+            let mut json_array: Vec<Value> = Vec::new();
             for res in results {
-                println!("Result: {:?}", res.other_fields.get("country"));
+                let keys_to_try = vec!["org-name", "organization", "orgname"];
+                let item = json!({
+                    res.other_fields.get("ip").unwrap(): json!( {"country":res.other_fields.get("country").unwrap_or(&"unk-country".to_string()),
+                "name":get_value(&res.other_fields, keys_to_try),})                
+                });
+                json_array.push(item.clone());
+            }
+
+            //Save to json file
+            let file = File::create(args.output_json).expect("Failed to create file");
+            if args.pretty {
+                serde_json::to_writer_pretty(&file, &json_array)
+                    .expect("Failed to write JSON to file");
+            } else {
+                serde_json::to_writer(&file, &json_array).expect("Failed to write JSON to file");
             }
         }
         Err(e) => {

@@ -2,3 +2,4 @@
 src/logins.txt
 src/ips.txt
 Cargo.lock
+src/output.json
