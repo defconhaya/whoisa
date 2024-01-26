@@ -6,11 +6,11 @@ Thank you for your interest in contributing to the Rust Whois Parallel Client! W
 
 ### Bug Reports
 
-If you encounter any issues while using the tool, please open a [new issue](https://github.com/your-username/rust-whois-parallel-client/issues) and provide as much detail as possible, including steps to reproduce.
+If you encounter any issues while using the tool, please open a [new issue](https://github.com/defconhaya/whoisa/issues) and provide as much detail as possible, including steps to reproduce.
 
 ### Feature Requests
 
-If you have ideas for new features or improvements, feel free to create a [feature request](https://github.com/your-username/rust-whois-parallel-client/issues/new?labels=enhancement).
+If you have ideas for new features or improvements, feel free to create a [feature request](https://github.com/defconhaya/whoisa/issues/new?labels=enhancement).
 
 ### Code Contributions
 
