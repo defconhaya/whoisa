@@ -2,11 +2,11 @@ use clap::Parser;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
-use std::collections::BTreeMap;
 use whois_rust::{WhoIs, WhoIsLookupOptions};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -22,14 +22,14 @@ struct Args {
     #[arg(short, long)]
     file: String,
     /// Path to json servers file
-    #[arg(short, long, default_value="whois.json")]
+    #[arg(short, long, default_value = "whois.json")]
     output_json: String,
     ///Number of parallel whois workers
     #[arg(short, long, default_value_t = 4)]
     workers: i32,
     ///json fields to extract eg name:org-name|organization,country
-    #[arg(short, long, default_value = "name:org-name|organization,country")]
-    capture: String,
+    // #[arg(short, long, default_value = "name:org-name|organization,country")]
+    // capture: String,
     ///pretty print output json
     #[arg(short, long)]
     pretty: bool,
@@ -84,13 +84,13 @@ fn get_value<'a>(map: &'a BTreeMap<String, String>, keys_to_try: Vec<&'a str>) -
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    let mut parts: Vec<Vec<&str>> = Vec::<Vec<&str>>::new();
-    let binding = args.capture.to_lowercase();
-    let captures: Vec<&str> = binding.split(',').collect();
-    for alt in &captures {
-        let alt_vec: Vec<&str> = alt.split('|').collect();
-        parts.push(alt_vec);
-    }
+    // let mut parts: Vec<Vec<&str>> = Vec::<Vec<&str>>::new();
+    // let binding = args.capture.to_lowercase();
+    // let captures: Vec<&str> = binding.split(',').collect();
+    // for alt in &captures {
+    //     let alt_vec: Vec<&str> = alt.split('|').collect();
+    //     parts.push(alt_vec);
+    // }
 
     match File::open(args.file) {
         Ok(file_handle) => {
@@ -119,7 +119,7 @@ async fn main() {
                 let keys_to_try = vec!["org-name", "organization", "orgname"];
                 let item = json!({
                     res.other_fields.get("ip").unwrap(): json!( {"country":res.other_fields.get("country").unwrap_or(&"unk-country".to_string()),
-                "name":get_value(&res.other_fields, keys_to_try),})                
+                "name":get_value(&res.other_fields, keys_to_try),})
                 });
                 json_array.push(item.clone());
             }
