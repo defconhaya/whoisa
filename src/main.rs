@@ -102,8 +102,8 @@ async fn main() {
 
             for line in reader.lines() {
                 match line {
-                    Ok(line_content) => {
-                        people_handlers.push(tokio::spawn(ip(semaphore_arc.clone(), line_content)))
+                    Ok(line_content) => {                        
+                        people_handlers.push(tokio::spawn(ip(semaphore_arc.clone(), line_content.trim().to_string())))
                     }
                     Err(_e) => {}
                 }
