@@ -4,6 +4,13 @@
 
 Welcome to the Rust Whois Parallel Client, a powerful and efficient tool designed to perform Whois queries in parallel. This open-source project is written in Rust, leveraging the language's performance and reliability to deliver a fast and concurrent Whois client.
 
+## About
+
+This project is my first venture into Rust development, and I'm excited to learn and contribute to the Rust ecosystem. Please bear in mind that as a newcomer, there might be room for improvement in both the codebase and documentation. Constructive feedback and contributions from the Rust community are highly encouraged!
+
+I want to emphasize that I have limited available time to work on this project due to other commitments. Your understanding and patience are greatly appreciated. If you're interested in contributing or have suggestions, please refer to the [Contribution Guidelines](CONTRIBUTING.md).
+
+
 ## Features
 
 - **Parallelism**: Execute multiple Whois queries concurrently, speeding up the process of retrieving information from various Whois servers.
