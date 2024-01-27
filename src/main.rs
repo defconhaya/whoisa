@@ -27,7 +27,7 @@ struct Args {
     ///Number of parallel whois workers
     #[arg(short, long, default_value_t = 4)]
     workers: i32,
-    ///json fields to extract eg name:org-name|organization,country
+    //json fields to extract eg name:org-name|organization,country
     // #[arg(short, long, default_value = "name:org-name|organization,country")]
     // capture: String,
     ///pretty print output json
