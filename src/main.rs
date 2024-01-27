@@ -74,6 +74,7 @@ async fn whoiser(semaphore: Arc<Semaphore>, ip: String, progress_bar: Arc<Progre
         .insert("ip".to_string(), ip.clone());
     // progress_bar.println(format!("{} is now leaving the teller", ip));
     progress_bar.inc(1);
+    progress_bar.set_message(ip);
     drop(permit);
     json_result
 }
@@ -113,10 +114,8 @@ async fn main() {
 
             let progress_bar = Arc::new(ProgressBar::new(line_count));            
                 progress_bar.set_style(
-                    ProgressStyle::default_bar()
-                        .template("[{bar:40.cyan/blue}] {pos}/{len} {percent}% {elapsed_precise}/{eta_precise}").expect("REASON")
-                        .progress_chars("#>-"),
-            );
+                    ProgressStyle::with_template("[{bar:40.green}] {pos}/{len} {percent}% {elapsed_precise}/{eta_precise} \t\t[{msg:.blue}]").expect("REASON")
+                        .progress_chars("█▇▆▅▄▃▂▁  "));
         
 
             for line in reader.lines() {
