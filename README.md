@@ -43,7 +43,7 @@ For more options and configuration settings, refer to the help command:
 
 ## TODO
 
-- **Add Progress**: Implement a progress indicator to provide users with real-time feedback on the status of their parallel Whois queries.
+- ~~**Add Progress**: Implement a progress indicator to provide users with real-time feedback on the status of their parallel Whois queries.~~
   
 - **Dynamic Capture Fields**: Enhance the tool to dynamically capture and display relevant fields from the Whois response, providing more comprehensive information.
 
