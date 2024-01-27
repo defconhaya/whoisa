@@ -8,6 +8,9 @@ use std::io::{self, BufRead};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use whois_rust::{WhoIs, WhoIsLookupOptions};
+use indicatif::{ProgressBar, ProgressStyle};
+use std::fs;
+
 
 #[derive(Debug, Serialize, Deserialize)]
 struct WhoisInfo {
@@ -53,12 +56,13 @@ fn parse_whois_to_json(whois: &str) -> WhoisInfo {
     whois_map
 }
 
-async fn ip(semaphore: Arc<Semaphore>, ip: String) -> WhoisInfo {
-    let json = whoiser(semaphore, ip).await;
+async fn ip(semaphore: Arc<Semaphore>, ip: String, progress_bar: Arc<ProgressBar>) -> WhoisInfo {
+    let json = whoiser(semaphore, ip, progress_bar).await;
     json
 }
 
-async fn whoiser(semaphore: Arc<Semaphore>, ip: String) -> WhoisInfo {
+async fn whoiser(semaphore: Arc<Semaphore>, ip: String, progress_bar: Arc<ProgressBar>) -> WhoisInfo {
+    // progress_bar.println(format!("\n{} is being served by the teller", ip));
     let permit = semaphore.acquire().await.unwrap();
     let whois = WhoIs::from_path("servers.json").unwrap();
     let result: String = whois
@@ -68,6 +72,8 @@ async fn whoiser(semaphore: Arc<Semaphore>, ip: String) -> WhoisInfo {
     json_result
         .other_fields
         .insert("ip".to_string(), ip.clone());
+    // progress_bar.println(format!("{} is now leaving the teller", ip));
+    progress_bar.inc(1);
     drop(permit);
     json_result
 }
@@ -92,7 +98,8 @@ async fn main() {
     //     parts.push(alt_vec);
     // }
 
-    match File::open(args.file) {
+    
+    match File::open(&args.file) {
         Ok(file_handle) => {
             let reader = io::BufReader::new(file_handle);
             let mut people_handlers = Vec::new();
@@ -100,10 +107,23 @@ async fn main() {
             let semaphore = Semaphore::new(num_of_tellers.try_into().unwrap());
             let semaphore_arc = Arc::new(semaphore);
 
+
+            let line_count= fs::read_to_string(args.file).expect("Error reading file").lines().count().try_into().unwrap();
+
+
+            let progress_bar = Arc::new(ProgressBar::new(line_count));            
+                progress_bar.set_style(
+                    ProgressStyle::default_bar()
+                        .template("[{bar:40.cyan/blue}] {pos}/{len} {percent}% {elapsed_precise}/{eta_precise}").expect("REASON")
+                        .progress_chars("#>-"),
+            );
+        
+
             for line in reader.lines() {
                 match line {
                     Ok(line_content) => {                        
-                        people_handlers.push(tokio::spawn(ip(semaphore_arc.clone(), line_content.trim().to_string())))
+                        let progress_bar_clone = progress_bar.clone();
+                        people_handlers.push(tokio::spawn(ip(semaphore_arc.clone(), line_content.trim().to_string(), progress_bar_clone )))
                     }
                     Err(_e) => {}
                 }
@@ -111,7 +131,7 @@ async fn main() {
 
             let mut results = Vec::new();
             for handle in people_handlers {
-                results.push(handle.await.unwrap());
+                results.push(handle.await.unwrap());                
             }
 
             let mut json_array: Vec<Value> = Vec::new();
