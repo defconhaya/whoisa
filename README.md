@@ -50,13 +50,12 @@ For more options and configuration settings, refer to the help command:
 
 ## TODO
 
-- ~~**Add Progress**: Implement a progress indicator to provide users with real-time feedback on the status of their parallel Whois queries.~~
-  
-- **Dynamic Capture Fields**: Enhance the tool to dynamically capture and display relevant fields from the Whois response, providing more comprehensive information.
 
-- **Export Output to CSV**: Introduce functionality to export the Whois query results to a CSV file, allowing for easy analysis and integration with other tools.
-
-- **Fix Regex Pattern for Parsing Whois Response**: Address any issues with the current regex pattern used for parsing Whois responses to ensure accurate and reliable information extraction.
+- [x] **Add Progress**: Implement a progress indicator to provide users with real-time feedback on the status of their parallel Whois queries.
+- [ ] **Dynamic Capture Fields**: Enhance the tool to dynamically capture and display relevant fields from the Whois response, providing more comprehensive information.
+- [ ] **Export Output to CSV**: Introduce functionality to export the Whois query results to a CSV file, allowing for easy analysis and integration with other tools.
+- [ ] **Fix Regex Pattern for Parsing Whois Response**: Address any issues with the current regex pattern used for parsing Whois responses to ensure accurate and reliable information extraction.
+- [ ] **Fallback to other server**: Try another whois server if the default one does not resolve the current IP.
 
 
 ## Contribution Guidelines
