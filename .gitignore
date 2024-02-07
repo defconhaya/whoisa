@@ -1,7 +1,7 @@
 /target
-src/logins.txt
-src/ips.txt
 Cargo.lock
 src/output.json
-src/ips2.txt
-src/res.json
+src/*.txt
+.vscode/settings.json
+src/*.json
+whois.json
