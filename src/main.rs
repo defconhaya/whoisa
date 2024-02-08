@@ -70,7 +70,10 @@ async fn whoiser(
  {
     // progress_bar.println(format!("\n{} is being served by the teller", ip));
     let permit = semaphore.acquire().await.unwrap();
-    let result = whois("193.0.6.135:43", &ip);
+    let result = whois("199.5.26.46:43", &ip); // arin
+    // let result = whois("192.0.32.59:43", &ip); // iana
+    // let result = whois("193.0.6.135:43", &ip); //ripe
+    
     let mut json_result = parse_whois_to_json(&result);
     json_result
         .other_fields
@@ -94,8 +97,6 @@ fn get_value<'a>(map: &'a BTreeMap<String, String>, keys_to_try: Vec<&'a str>) -
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-
-
     match File::open(&args.file) {
         Ok(file_handle) => {
             let reader = io::BufReader::new(file_handle);
